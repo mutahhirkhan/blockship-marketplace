@@ -14,9 +14,10 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const MAX_UINT = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 
 describe("BlockshipMarketplace", () => {
-    let marketplace, nft, partnerShare;
+    let marketplace, nft;
     let deployer, taker, maker, partner;
     let tokenId = 1;
+    let partnerShare = 25;
 
     it("it should deploy marketplace contract", async () => {
         [deployer, taker, maker, partner] = await ethers.getSigners();
@@ -34,9 +35,9 @@ describe("BlockshipMarketplace", () => {
     });
     it("it should give shares to partner", async () => {
         await nft.connect(maker).setApprovalForAll(nft.address, true);
-        // partnerShare = await marketplace.connect(maker).transfer(partner.address, 1, 250);
-        // const tx = await expect(nft.connect(maker).transfer(partner.address, 1, 250)).to.emit(nft, "Transfer").withArgs(maker.address, partner.address, 1,250);
-        const tx = await nft.connect(maker).transfer(partner.address, tokenId, 250);
+        // partnerShare = await marketplace.connect(maker).transfer(partner.address, 1, partnerShare);
+        // const tx = await expect(nft.connect(maker).transfer(partner.address, 1, partnerShare)).to.emit(nft, "Transfer").withArgs(maker.address, partner.address, 1,250);
+        const tx = await nft.connect(maker).transfer(partner.address, tokenId, partnerShare);
         const rc = await tx.wait(); // 0ms, as tx is already confirmed
         const event = rc.events.find((event) => event.event === "Transfer");
         const eventValues = event.args;
