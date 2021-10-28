@@ -63,6 +63,15 @@ contract DNFT is ERC721{
     function listOfTokenOwners(uint _tokenId) public view returns(address [] memory) {
         return tokenOwners[_tokenId];
     }
+    function buyerIsNotSeller(uint _tokenId, address _seller) public view returns(bool isTrue){
+        address [] memory owners = tokenOwners[_tokenId];
+        for(uint128 i = 0; i<owners.length; i++) {
+            if(owners[i] == _seller){
+                return false;
+            }
+        }
+        return true;
+    }
 
     function ownersWithZeroShare (uint _tokenId) public view returns(uint _index){
         address [] memory owners = tokenOwners[_tokenId];
@@ -105,32 +114,32 @@ contract DNFT is ERC721{
     /// @dev transfer parts of a token to another user
     function transfer(address _to, uint _tokenId, uint _units) public onlyExistentToken (_tokenId)
     {
-    require(ownerToTokenShare[msg.sender][_tokenId] >= _units);
+        require(ownerToTokenShare[msg.sender][_tokenId] >= _units);
 
-    require(_to != address(0));
-        require(msg.sender != _to);
-        require(_to != address(this));
-    // TODO should check _to address to avoid losing tokens units
-    // will check _to address on frontend using "web3.utils.toChecksumAddress(rawInput)"
+        require(_to != address(0));
+            require(msg.sender != _to);
+            require(_to != address(this));
+        // TODO should check _to address to avoid losing tokens units
+        // will check _to address on frontend using "web3.utils.toChecksumAddress(rawInput)"
 
-    _removeShareFromLastOwner(msg.sender, _tokenId, _units);
-    _removeLastOwnerHoldingsFromToken(msg.sender, _tokenId, _units);
+        _removeShareFromLastOwner(msg.sender, _tokenId, _units);
+        _removeLastOwnerHoldingsFromToken(msg.sender, _tokenId, _units);
 
-    _addShareToNewOwner(_to, _tokenId, _units);
-    _addNewOwnerHoldingsToToken(_to, _tokenId, _units);
+        _addShareToNewOwner(_to, _tokenId, _units);
+        _addNewOwnerHoldingsToToken(_to, _tokenId, _units);
 
-    //this will pop out the owners with zero holding over a token
-    uint res = ownersWithZeroShare(_tokenId);
-    if(res != 0) {
-            address [] storage owners = tokenOwners[_tokenId];
-            owners[res-1] = owners[owners.length - 1];
-            owners.pop();
-            tokenOwners[_tokenId] = owners;
-        }
+        //this will pop out the owners with zero holding over a token
+        uint res = ownersWithZeroShare(_tokenId);
+        if(res != 0) {
+                address [] storage owners = tokenOwners[_tokenId];
+                owners[res-1] = owners[owners.length - 1];
+                owners.pop();
+                tokenOwners[_tokenId] = owners;
+            }
 
-    emit Transfer(msg.sender, _to, _tokenId, _units); // emit event
+        emit Transfer(msg.sender, _to, _tokenId, _units); // emit event
     }
-
+    
 
     // ------------------------------ Helper functions (internal functions) ------------------------------
 

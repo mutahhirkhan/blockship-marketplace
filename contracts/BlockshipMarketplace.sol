@@ -63,6 +63,7 @@ contract BlockshipMaketplace is ReentrancyGuard, DNFT{
     }
 
     function createMarketSale (address _nftContract, uint _itemId) public payable nonReentrant {
+        require(msg.sender != address(0), "undefined owner address");
         MarketItem storage _item = idToMarketItem[_itemId];
         uint price = _item.price;
         uint tokenId = _item.tokenId;
